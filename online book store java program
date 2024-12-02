@@ -1,0 +1,115 @@
+mainFrame.setVisible(true);
+    }
+
+    private void createSearchWindow() {
+        Frame searchFrame = new Frame("Search Books");
+        searchFrame.setSize(400, 200);
+        searchFrame.setLayout(new BorderLayout());
+
+        TextField searchField = new TextField(20);
+        Button searchButton = new Button("Search");
+        TextArea searchResults = new TextArea();
+        searchResults.setEditable(false);
+
+        searchButton.addActionListener(e -> {
+            String keyword = searchField.getText().trim().toLowerCase();
+            if (!keyword.isEmpty()) {
+                searchResults.setText("");
+                for (String book : bookPrices.keySet()) {
+                    if (book.toLowerCase().contains(keyword)) {
+                        searchResults.append(book + " - $" + bookPrices.get(book) + "\n");
+                    }
+                }
+                if (searchResults.getText().isEmpty()) {
+                    searchResults.setText("No books found for: " + keyword);
+                }
+            } else {
+                searchResults.setText("Please enter a keyword to search!");
+            }
+        });
+
+        Panel searchPanel = new Panel(new FlowLayout());
+        searchPanel.add(new Label("Enter keyword:"));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+
+        searchFrame.add(searchPanel, BorderLayout.NORTH);
+        searchFrame.add(searchResults, BorderLayout.CENTER);
+        searchFrame.setVisible(true);
+    }
+
+    private void createAddBookWindow() {
+        Frame addBookFrame = new Frame("Add New Book");
+        addBookFrame.setSize(400, 200);
+        addBookFrame.setLayout(new BorderLayout());
+
+        TextField bookNameField = new TextField(20);
+        TextField bookPriceField = new TextField(5);
+        Button addButton = new Button("Add Book");
+
+        addButton.addActionListener(e -> {
+            String bookName = bookNameField.getText().trim();
+            String priceText = bookPriceField.getText().trim();
+
+            if (!bookName.isEmpty() && !priceText.isEmpty()) {
+                try {
+                    int price = Integer.parseInt(priceText);
+                    addBookToStore(bookName, price);
+                    addBookFrame.setVisible(false);
+                    showMessage("Book added successfully!");
+                } catch (NumberFormatException ex) {
+                    showMessage("Please enter a valid price!");
+                }
+            } else {
+                showMessage("All fields are required!");
+            }
+        });
+
+        Panel inputPanel = new Panel(new FlowLayout());
+        inputPanel.add(new Label("Book Name:"));
+        inputPanel.add(bookNameField);
+        inputPanel.add(new Label("Price:"));
+        inputPanel.add(bookPriceField);
+        inputPanel.add(addButton);
+
+        addBookFrame.add(inputPanel, BorderLayout.CENTER);
+        addBookFrame.setVisible(true);
+    }
+
+    private void addBookToStore(String bookName, int price) {
+        bookList.add(bookName + " - $" + price);
+        bookPrices.put(bookName, price);
+    }
+
+    private void updateCartDisplay() {
+        cartDisplay.setText("");
+        for (String book : cart) {
+            cartDisplay.append(book + "\n");
+        }
+        totalPriceLabel.setText("Total Price: $" + calculateTotal());
+    }
+
+    private int calculateTotal() {
+        int total = 0;
+        for (String book : cart) {
+            String[] parts = book.split("- \\$");
+            total += Integer.parseInt(parts[1]);
+        }
+        return total;
+    }
+
+    private void showMessage(String message) {
+        Frame dialogFrame = new Frame();
+        Dialog dialog = new Dialog(dialogFrame, "Message", true);
+        dialog.setSize(300, 150);
+        dialog.setLayout(new BorderLayout());
+
+        Label messageLabel = new Label(message, Label.CENTER);
+        Button okButton = new Button("OK");
+        okButton.addActionListener(e -> dialog.setVisible(false));
+
+        dialog.add(messageLabel, BorderLayout.CENTER);
+        dialog.add(okButton, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+}
